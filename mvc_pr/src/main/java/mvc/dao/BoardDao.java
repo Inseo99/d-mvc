@@ -28,7 +28,7 @@ public class BoardDao {
 		int perPageNum = cri.getPerPageNum();	// 화면 노출 리스트 갯수
 		
 		ArrayList<BoardVo> alist = new ArrayList<BoardVo>();	// ArrayList 컬렉션 객체에 BoardVo을 담겠다. BoardVo는 컬럼값을 담겠다.
-		String sql = "SELECT * FROM board ORDER BY originbidx DESC, depth ASC LIMIT ?, ?";
+		String sql = "SELECT * FROM board WHERE delyn = 'N' ORDER BY originbidx DESC, depth ASC LIMIT ?, ?";
 		ResultSet rs = null;	// db값을 가져오기위한 전용클래스
 		
 		try {
@@ -303,11 +303,99 @@ public int boardRecomUpdate(int bidx) {
 			} catch(Exception e) {
 				e.printStackTrace();
 			}		
-		}
-		
+		}	
 		return recom;
 	}
+
+	public int boardDelete(int bidx, String password) {
+
+		
+		int value = 0;
+		String sql = "UPDATE board SET delyn = 'Y' WHERE bidx = ? AND password = ?";
+		
+		try {
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setInt(1, bidx);
+			pstmt.setString(2, password);
+			
+			value = pstmt.executeUpdate();
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			try{	// 각 개체도 소멸시키고 DB연결을 끊는다.
+				pstmt.close();
+				conn.close();
+			} catch(Exception e) {
+				e.printStackTrace();
+			}		
+		}		
+		return value;
+	}
 	
+	public int boardReply(BoardVo bv) {
+		
+		int value = 0;
+		int maxbidx = 0;
+		
+		String sql1 = "UPDATE board SET depth = depth + 1 WHERE originbidx = ?  AND depth > ?"; 
+		String sql2 = "INSERT INTO board (originbidx, depth, level_, subject, contents, writer, midx, filename, password)"
+				+ "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)";
+		String sql3 = "SELECT MAX(bidx) AS maxbidx FROM board WHERE originbidx = ?";
+				
+		try {
+			conn.setAutoCommit(false);	// 수동커밋으로 하겠다.
+			pstmt = conn.prepareStatement(sql1);
+			pstmt.setInt(1, bv.getOriginbidx());
+			pstmt.setInt(2, bv.getDepth());
+			
+			int exec = pstmt.executeUpdate();	// 실행되면 1 안되면 0
+			
+			pstmt = conn.prepareStatement(sql2);
+			pstmt.setInt(1, bv.getOriginbidx());
+			pstmt.setInt(2, bv.getDepth()+1);
+			pstmt.setInt(3, bv.getLevel_()+1);
+			pstmt.setString(4, bv.getSubject());
+			pstmt.setString(5, bv.getContents());
+			pstmt.setString(6, bv.getWriter());
+			pstmt.setInt(7, bv.getMidx());
+			pstmt.setString(8, bv.getFilename());
+			pstmt.setString(9, bv.getPassword());
+			
+			int exec2 = pstmt.executeUpdate();	// 실행되면 1 안되면 0
+			
+			ResultSet rs = null;
+			pstmt = conn.prepareStatement(sql3);
+			pstmt.setInt(1, bv.getOriginbidx());
+			rs = pstmt.executeQuery();
+			
+			conn.commit();	// 일괄처리 커밋
+			
+			if(rs.next()) {
+				maxbidx = rs.getInt("maxbidx");
+			}
+			
+			// value = exec + exec2;
+			
+		} catch (SQLException e) {			
+			try {
+				conn.rollback();	// 실행중 오류발생시 롤백처리
+			} catch (SQLException e1) {
+				e1.printStackTrace();
+			}			
+			e.printStackTrace();
+		} finally {
+			try{	// 각 개체도 소멸시키고 DB연결을 끊는다.
+				pstmt.close();
+				conn.close();
+			} catch(Exception e) {
+				e.printStackTrace();
+			}		
+		}
+		return maxbidx;
+	}
+
+
 }
 
 
