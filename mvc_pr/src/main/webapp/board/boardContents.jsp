@@ -76,7 +76,8 @@ $(document).ready(function() {	// cdn주소 필요
 			<%=bv.getContents() %>
 		</div>
 		<% if (bv.getFilename() != null) { %>
-		<a href="#" class="fileDown"><img src="<%=bv.getFilename() %>">첨부파일입니다.</a>
+		<a href="#" class="fileDown">
+		<img src="/images/<%=bv.getFilename() %>">첨부파일입니다.</a>
 		<%} %>
 	</article>
 

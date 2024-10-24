@@ -75,7 +75,37 @@ public class BoardController extends HttpServlet {
 			url = "/board/boardWrite.jsp";	// 실제 내부 경로
 
 		} else if (location.equals("boardWriteAction.aws")) {	// 가상 경로
-			//System.out.println("boardWriteAction.aws");
+			System.out.println("boardWriteAction.aws");	
+
+	        String savePath = "D:\\dev\\eclipse-workspace\\d-mvc\\mvc_pr\\src\\main\\webapp\\images\\";   // 저장될 위치
+	        System.out.println(savePath);
+	        int fsize = (int) request.getPart("filename").getSize();
+	        System.out.println(fsize);
+	         
+	        String originFileName = "";
+	        if (fsize != 0) {
+	           Part filePart = (Part)request.getPart("filename");	// 넘어온 멀티파트 파일을 Part클래스로 담는다.
+	           System.out.println(filePart);
+	            
+	           originFileName = getFileName(filePart);	// 파일이름 추출
+	           System.out.println(originFileName);
+	           
+	           System.out.println(savePath + originFileName);	
+	           
+	           File file = new File(savePath + originFileName);	// 파일 객체 생성
+	           InputStream is = filePart.getInputStream();	// 파일 읽어들이는 스트림 생성
+	           FileOutputStream fos = null;
+	            
+	           fos = new FileOutputStream(file);	// 파일 작성 및 완성하는 스트림 생성
+	            
+	           int temp = -1;
+	            
+	           while((temp = is.read()) != -1) {	// 반복문을 돌려서 읽어드린 데이터를 output에 작성한다
+	           	fos.write(temp);
+	           }
+	           is.close();	// input 스트림 객체 소멸
+	           fos.close();	// Output 스트림 객체 소멸
+	        }
 			
 			// 1. 파라미터 값을 넘겨받는다.
 			String subject = request.getParameter("subject");
@@ -92,6 +122,7 @@ public class BoardController extends HttpServlet {
 			bv.setWriter(writer);
 			bv.setPassword(password);
 			bv.setMidx(midx);
+			bv.setFilename(originFileName);
 			
 			// 2. DB처리한다.
 			BoardDao bd = new BoardDao();
@@ -206,5 +237,16 @@ public class BoardController extends HttpServlet {
 		doGet(request, response);
 	}
 	
-
+	public String getFileName(Part filePart) {
+		      
+		for(String filePartData : filePart.getHeader("Content-Disposition").split(";")) {
+		System.out.println(filePartData);
+		         
+			if(filePartData.trim().startsWith("filename")) {
+				return filePartData.substring(filePartData.indexOf("=") + 1).trim().replace("\"","");
+		    }
+		}
+		return null;
+	}		
+	
 }

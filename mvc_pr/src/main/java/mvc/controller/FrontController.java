@@ -12,11 +12,12 @@ import java.io.IOException;
  * Servlet implementation class FrontController
  */
 @WebServlet("/FrontController")
+// 멀티파일 추가 깃
 @MultipartConfig(	// 멀티파일을 설정한다
 		fileSizeThreshold = 1024 * 1024 * 1,	// 1MB
 		maxFileSize = 1024 * 1024 * 10,	// 10MB
 		maxRequestSize = 1024 * 1024 * 15,	// 15MB
-		location = "D:dev/temp"	// 임시로 보관하는 위치 (물리적으로 만들어놔야한다)		
+		location = "D:\\dev\\temp"	// 임시로 보관하는 위치 (물리적으로 만들어놔야한다)		
 )
 public class FrontController extends HttpServlet {
 	private static final long serialVersionUID = 1L;
