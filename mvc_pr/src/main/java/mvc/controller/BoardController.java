@@ -431,7 +431,7 @@ public String getUserIp(HttpServletRequest request) throws Exception {
 		
         if (ip.equals("0:0:0:0:0:0:0:1") || ip.equals("127.0.0.1")) {
         	InetAddress address = InetAddress.getLocalHost();
-        	ip = address.getHostName() + "/" + address.getHostAddress();
+        	ip = address.getHostAddress();
         	
         }
         
