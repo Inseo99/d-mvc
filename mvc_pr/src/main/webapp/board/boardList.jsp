@@ -48,10 +48,20 @@ String param = "keyword=" + keyword + "%searcType=" + searchType + "";
 		</tr>
 	   <% 
 	   int num = totalCount - (pm.getScri().getPage() - 1) * pm.getScri().getPerPageNum();
-	   for(BoardVo bv : alist) { %>
+	   for(BoardVo bv : alist) { 
+		   	
+		    String lvlstr = "";
+			for(int i = 1; i <= bv.getLevel_(); i++) {
+				lvlstr = lvlstr + "&nbsp;&nbsp;";
+				
+				if (i == bv.getLevel_()) {
+					lvlstr = lvlstr + "ㄴ";
+				}
+			}
+	   %>
 		<tr>
-			<td><%=num %></td>
-			<td class="title"><a href="<%=request.getContextPath()%>/board/boardContents.aws?bidx=<%=bv.getBidx()%>"><%=bv.getSubject()%></a></td>
+			<td><%=num %></td>			
+			<td class="title"><%=lvlstr %><a href="<%=request.getContextPath()%>/board/boardContents.aws?bidx=<%=bv.getBidx()%>"><%=bv.getSubject()%></a></td>
 			<td><%=bv.getWriter() %></td>
 			<td><%=bv.getViewcnt() %></td>
 			<td><%=bv.getRecom() %></td>

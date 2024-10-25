@@ -350,9 +350,9 @@ public class BoardController extends HttpServlet {
 			
 			paramMethod = "S";
 			if(maxbidx != 0) {	// 입력성공				
-				url = request.getContextPath() + "/board/boardContents.aws?bidx" + maxbidx;					
+				url = request.getContextPath() + "/board/boardContents.aws?bidx=" + maxbidx;					
 			} else {	// 입력실패
-				url = request.getContextPath() + "/board/boardReply.aws?bidx" + bidx;	
+				url = request.getContextPath() + "/board/boardReply.aws?bidx=" + bidx;	
 			}
 		}
 		

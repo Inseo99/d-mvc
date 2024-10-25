@@ -57,6 +57,7 @@ public class BoardDao {
 				String writer = rs.getString("writer");
 				int viewCnt = rs.getInt("viewcnt");
 				int recom = rs.getInt("recom");
+				int level_ = rs.getInt("level_");
 				String writeday = rs.getString("writeday");
 				
 				BoardVo bv = new BoardVo();	// 첫행부터 bv에 옮겨담기
@@ -67,6 +68,7 @@ public class BoardDao {
 				bv.setViewcnt(viewCnt);
 				bv.setRecom(recom);
 				bv.setWriteday(writeday);
+				bv.setLevel_(level_);
 				
 				alist.add(bv);		// ArrayList객체에 하나씩 추가한다.
 			}
@@ -357,7 +359,7 @@ public int boardRecomUpdate(int bidx) {
 	
 	public int boardReply(BoardVo bv) {
 		
-		int value = 0;
+		// int value = 0;
 		int maxbidx = 0;
 		
 		String sql1 = "UPDATE board SET depth = depth + 1 WHERE originbidx = ?  AND depth > ?"; 
