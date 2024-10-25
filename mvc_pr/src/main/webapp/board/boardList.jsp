@@ -8,6 +8,8 @@ ArrayList<BoardVo> alist = (ArrayList<BoardVo>)request.getAttribute("alist");
 
 PageMaker pm = (PageMaker)request.getAttribute("pm");
 
+int totalCount = pm.getTotalCount();
+
 String keyword = pm.getScri().getKeyword();
 String searchType = pm.getScri().getSearchType();
 
@@ -45,10 +47,10 @@ String param = "keyword=" + keyword + "%searcType=" + searchType + "";
 			<th>날짜</th>
 		</tr>
 	   <% 
-	   int num = 1;
+	   int num = totalCount - (pm.getScri().getPage() - 1) * pm.getScri().getPerPageNum();
 	   for(BoardVo bv : alist) { %>
 		<tr>
-			<td><%=bv.getOriginbidx() %></td>
+			<td><%=num %></td>
 			<td class="title"><a href="<%=request.getContextPath()%>/board/boardContents.aws?bidx=<%=bv.getBidx()%>"><%=bv.getSubject()%></a></td>
 			<td><%=bv.getWriter() %></td>
 			<td><%=bv.getViewcnt() %></td>
@@ -56,7 +58,7 @@ String param = "keyword=" + keyword + "%searcType=" + searchType + "";
 			<td><%=bv.getWriteday().substring(0, 10) %></td>
 		</tr>
 		<% 
-	 	 num++;
+	 	 num = num - 1;
 	 	  }%>
 	</table>
 	
