@@ -348,6 +348,17 @@ public class BoardController extends HttpServlet {
 			HttpSession session = request.getSession();	// 세션 객체를 불러와서
 			int midx = Integer.parseInt(session.getAttribute("midx").toString());	// 로그인할때 담았던 세션변수 midx값을 꺼낸다.
 			
+			String ip = "";
+			
+			try {
+				ip = getUserIp(request);
+				// System.out.println(ip);
+				String serverip = InetAddress.getLocalHost().getHostAddress();
+				// System.out.println(serverip);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+									
 			BoardVo bv = new BoardVo();
 			bv.setSubject(subject);
 			bv.setContents(contents);
@@ -359,6 +370,7 @@ public class BoardController extends HttpServlet {
 			bv.setOriginbidx(Integer.parseInt(originbidx));
 			bv.setDepth(Integer.parseInt(depth));
 			bv.setLevel_(Integer.parseInt(level_));
+			bv.setIp(ip);
 			
 			BoardDao bd = new BoardDao();
 			int maxbidx = bd.boardReply(bv);

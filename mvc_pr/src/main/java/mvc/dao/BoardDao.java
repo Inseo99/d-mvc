@@ -365,8 +365,8 @@ public int boardRecomUpdate(int bidx) {
 		int maxbidx = 0;
 		
 		String sql1 = "UPDATE board SET depth = depth + 1 WHERE originbidx = ?  AND depth > ?"; 
-		String sql2 = "INSERT INTO board (originbidx, depth, level_, subject, contents, writer, midx, filename, password)"
-				+ "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)";
+		String sql2 = "INSERT INTO board (originbidx, depth, level_, subject, contents, writer, midx, filename, password, ip)"
+				+ "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 		String sql3 = "SELECT MAX(bidx) AS maxbidx FROM board WHERE originbidx = ?";
 				
 		try {
@@ -387,6 +387,7 @@ public int boardRecomUpdate(int bidx) {
 			pstmt.setInt(7, bv.getMidx());
 			pstmt.setString(8, bv.getFilename());
 			pstmt.setString(9, bv.getPassword());
+			pstmt.setString(10, bv.getIp());
 			
 			int exec2 = pstmt.executeUpdate();	// 실행되면 1 안되면 0
 			
