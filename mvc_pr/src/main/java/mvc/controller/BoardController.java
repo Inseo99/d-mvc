@@ -19,6 +19,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
+import java.net.InetAddress;
 import java.util.ArrayList;
 
 /**
@@ -126,6 +127,19 @@ public class BoardController extends HttpServlet {
 			HttpSession session = request.getSession();	// 세션 객체를 불러와서
 			int midx = Integer.parseInt(session.getAttribute("midx").toString());	// 로그인할때 담았던 세션변수 midx값을 꺼낸다.
 			
+			// String ip = request.getRemoteAddr();
+			String ip = "";
+			
+			try {
+				ip = getUserIp(request);
+				// System.out.println(ip);
+				String serverip = InetAddress.getLocalHost().getHostAddress();
+				// System.out.println(serverip);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			
+			
 			BoardVo bv = new BoardVo();
 			bv.setSubject(subject);
 			bv.setContents(contents);
@@ -133,6 +147,7 @@ public class BoardController extends HttpServlet {
 			bv.setPassword(password);
 			bv.setMidx(midx);
 			bv.setFilename(originFileName);
+			bv.setIp(ip);
 			
 			// 2. DB처리한다.
 			BoardDao bd = new BoardDao();
@@ -380,6 +395,47 @@ public class BoardController extends HttpServlet {
 		    }
 		}
 		return null;
-	}		
+	}
+	
+public String getUserIp(HttpServletRequest request) throws Exception {
+		
+        String ip = null;
+        // HttpServletRequest request = ((ServletRequestAttributes)RequestContextHolder.currentRequestAttributes()).getRequest();
+
+        ip = request.getHeader("X-Forwarded-For");
+        
+        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) { 
+            ip = request.getHeader("Proxy-Client-IP"); 
+        } 
+        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) { 
+            ip = request.getHeader("WL-Proxy-Client-IP"); 
+        } 
+        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) { 
+            ip = request.getHeader("HTTP_CLIENT_IP"); 
+        } 
+        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) { 
+            ip = request.getHeader("HTTP_X_FORWARDED_FOR"); 
+        }
+        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) { 
+            ip = request.getHeader("X-Real-IP"); 
+        }
+        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) { 
+            ip = request.getHeader("X-RealIP"); 
+        }
+        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) { 
+            ip = request.getHeader("REMOTE_ADDR");
+        }
+        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) { 
+            ip = request.getRemoteAddr(); 
+        }
+		
+        if (ip.equals("0:0:0:0:0:0:0:1") || ip.equals("127.0.0.1")) {
+        	InetAddress address = InetAddress.getLocalHost();
+        	ip = address.getHostName() + "/" + address.getHostAddress();
+        	
+        }
+        
+		return ip;
+	}
 	
 }
