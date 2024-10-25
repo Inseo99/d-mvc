@@ -7,10 +7,13 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+import javax.print.DocFlavor.STRING;
+
 import mvc.dbcon.Dbconn;
 import mvc.vo.BoardVo;
 import mvc.vo.Criteria;
 import mvc.vo.MemberVo;
+import mvc.vo.SearchCriteria;
 
 public class BoardDao {
 	
@@ -22,13 +25,22 @@ public class BoardDao {
 		this.conn = db.getConnection();
 	}
 	
-	public ArrayList<BoardVo> boardSelectAll(Criteria cri) {
+	public ArrayList<BoardVo> boardSelectAll(SearchCriteria scri) {
 		
-		int page = cri.getPage();	// 페이지번호
-		int perPageNum = cri.getPerPageNum();	// 화면 노출 리스트 갯수
+		int page = scri.getPage();	// 페이지번호
+		int perPageNum = scri.getPerPageNum();	// 화면 노출 리스트 갯수
+		
+		String str = "";
+		String keyword = scri.getKeyword();
+		String searchType = scri.getSearchType();
+		
+		// 키워드가 존재한다면 like구문을 활용한다.
+		if(!scri.getKeyword().equals("")) {
+			str = " AND " + searchType + " LIKE CONCAT('%','" + keyword + "','%') ";
+		}
 		
 		ArrayList<BoardVo> alist = new ArrayList<BoardVo>();	// ArrayList 컬렉션 객체에 BoardVo을 담겠다. BoardVo는 컬럼값을 담겠다.
-		String sql = "SELECT * FROM board WHERE delyn = 'N' ORDER BY originbidx DESC, depth ASC LIMIT ?, ?";
+		String sql = "SELECT * FROM board WHERE delyn = 'N'" + str + "ORDER BY originbidx DESC, depth ASC LIMIT ?, ?";
 		ResultSet rs = null;	// db값을 가져오기위한 전용클래스
 		
 		try {
@@ -75,11 +87,21 @@ public class BoardDao {
 	}
 	
 	// 게시판 전체 갯수 구하기
-	public int boardTatalCount() {
+	public int boardTatalCount(SearchCriteria scri) {
+		
+		String str = "";
+		String keyword = scri.getKeyword();
+		String searchType = scri.getSearchType();
+		
+		// 키워드가 존재한다면 like구문을 활용한다.
+		if(!scri.getKeyword().equals("")) {
+			str = "AND " + searchType + " LIKE CONCAT('%','" + keyword + "','%')";
+		}
 		
 		int value = 0;
 		// 1. 쿼리 만들기
-		String sql ="SELECT COUNT(*) AS cnt FROM board WHERE delyn = 'N'";
+		String sql ="SELECT COUNT(*) AS cnt FROM board WHERE delyn = 'N'" + str + " ";
+
 		// 2. conn 객체 안에 있는 구문 클래스 호출하기
 		// 3. DB 컬럼값을 받는 전용 클래스 ResultSet 호출 (ResultSet 특징은 데이털를 그대로 복사하기때문에 전달이 빠름)
 		ResultSet rs = null;

@@ -12,6 +12,7 @@ import mvc.dao.BoardDao;
 import mvc.vo.BoardVo;
 import mvc.vo.Criteria;
 import mvc.vo.PageMaker;
+import mvc.vo.SearchCriteria;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -45,20 +46,27 @@ public class BoardController extends HttpServlet {
 			if (page == null) page = "1";
 			int pageInt = Integer.parseInt(page);
 			
-			Criteria cri = new Criteria();
-			cri.setPage(pageInt);			// <--------- PageMaker에 Criteria 담아서 가지고 다닌다.
+			String searchType = request.getParameter("searchType");
+			String keyword = request.getParameter("keyword");
+			
+			if(keyword == null) keyword = "";
+			
+			SearchCriteria scri = new SearchCriteria();
+			scri.setPage(pageInt);		
+			scri.setSearchType(searchType);
+			scri.setKeyword(keyword);
 			
 			PageMaker pm = new PageMaker();
-			pm.setCri(cri);
+			pm.setScri(scri);	// <--------- PageMaker에 SearchCriteria 담아서 가지고 다닌다.
 			
 			BoardDao bd = new BoardDao();
 			// 페이징 처리하기 위한 전체 데이터 갯수 가져오기
-			int boardCnt = bd.boardTatalCount();
+			int boardCnt = bd.boardTatalCount(scri);
 			// System.out.println("게시물수는? " + boardCnt);
 			
 			pm.setTotalCount(boardCnt);			// <--------- PageMaker에 전체게시물수를 담아서 페이지계산
 			
-			ArrayList<BoardVo> alist = bd.boardSelectAll(cri);
+			ArrayList<BoardVo> alist = bd.boardSelectAll(scri);
 			
 			request.setAttribute("alist", alist);	// 화면까지 가지고 가기위해 request객체에 담는다.
 			request.setAttribute("pm",pm);			// forward방식으로 넘기기 때문에 공유가 가능하다.
