@@ -2,6 +2,7 @@ package mvc.controller;
 
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -15,11 +16,14 @@ import mvc.vo.PageMaker;
 import mvc.vo.SearchCriteria;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.InetAddress;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 
 /**
@@ -381,6 +385,50 @@ public class BoardController extends HttpServlet {
 			} else {	// 입력실패
 				url = request.getContextPath() + "/board/boardReply.aws?bidx=" + bidx;	
 			}
+		} else if (location.equals("boardDownload.aws")) {
+			// System.out.println("boardDownload.aws");
+			
+			String filename = request.getParameter("filename");
+			String savePath = "D:\\dev\\eclipse-workspace\\d-mvc\\mvc_pr\\src\\main\\webapp\\images\\";
+			
+			ServletOutputStream sos = response.getOutputStream();
+			
+			String downfile = savePath + filename;
+			// System.out.println(downfile);
+			
+			File f = new File(downfile);
+			
+			String header = request.getHeader("User-Agent");
+			
+			String fileName = "";
+			if(header.contains("Chrome") || header.contains("Opera")) {
+				fileName = new String(filename.getBytes("UTF-8"),"ISO-8859-1");
+				response.setHeader("Catch-Control", "no-catch");
+				response.setHeader("Content-Disposition", "attachment;filename=" + fileName);
+			} else if (header.contains("MSIE") || header.contains("Trident") || header.contains("Edge")) {
+				URLEncoder.encode(filename,"UTF-8").replaceAll("\\+", "%20");
+				response.setHeader("Content-Disposition", "attachment;filename=" + fileName);
+				
+			} else {
+				response.setHeader("Catch-Control", "no-catch");
+				response.setHeader("Content-Disposition", "attachment;filename=" + fileName);				
+			}
+			
+			FileInputStream in = new FileInputStream(f);
+			
+			byte[] buffer = new byte[1024*8];
+			
+			while(true) {
+				int count = in.read(buffer);
+				if(count == -1) {
+					break;
+				}
+				sos.write(buffer, 0, count);
+			}
+			
+			in.close();
+			sos.close();
+			
 		}
 		
 		if (paramMethod.equals("F")) {

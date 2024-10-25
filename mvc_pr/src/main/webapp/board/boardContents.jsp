@@ -72,16 +72,19 @@ $(document).ready(function() {	// cdn주소 필요
 		<p class="write"><%=bv.getWriter()%>
 			(<%=bv.getWriteday() %>)
 		</p>
+		<hr>
 		<div class="content">
 			<%=bv.getContents() %>
 		</div>
 		<% if (bv.getFilename() == null || bv.getFilename().equals("")) {}else{ %>
-		<a href="#" class="fileDown">
-		<img src="/images/<%=bv.getFilename() %>">첨부파일입니다.</a>
+		<img src="/images/<%=bv.getFilename() %>">
 		<%} %>
+		
 	</article>
 
 	<div class="btnBox">
+		<a class="btn aBtn"
+			href="<%=request.getContextPath()%>/board/boardDownload.aws?filename=<%=bv.getFilename()%>">다운</a>
 		<a class="btn aBtn"
 			href="<%=request.getContextPath()%>/board/boardModify.aws?bidx=<%=bv.getBidx()%>">수정</a>
 		<a class="btn aBtn" 
