@@ -1,7 +1,13 @@
 <%@page import="mvc.vo.BoardVo"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
-<%BoardVo bv = (BoardVo)request.getAttribute("bv"); // 강제형변환 양쪽형을 맞춰준다
+<%
+BoardVo bv = (BoardVo)request.getAttribute("bv"); // 강제형변환 양쪽형을 맞춰준다
+
+String memberName = "";
+if(session.getAttribute("memberName") != null) {
+	memberName = (String)session.getAttribute("memberName");
+}
 %>
 <!DOCTYPE html>
 <html>
@@ -12,30 +18,26 @@
 <!-- jquery CDN주소 -->
 <link href="../css/style2.css" rel="stylesheet">
 <script> 
-
-function check() {
-	  
-	  // 유효성 검사하기
-	  let fm = document.frm;
-	  
-	  if (fm.content.value == "") {
-		  alert("내용을 입력해주세요");
-		  fm.content.focus();
-		  return;
-	  }
-	  
-	  let ans = confirm("저장하시겠습니까?");
-	  
-	  if (ans == true) {
-		  fm.action="./detail.html";
-		  fm.method="post";
-		  fm.submit();
-	  }	  
-	  
-	  return;
+//jquery로 만드는 함수
+$.boardCommentList = function(){
+	
+	$.ajax({
+		type : "get",	// 전송방식
+		url : "<%=request.getContextPath()%>/comment/commentList.aws?bidx=<%=bv.getBidx()%>",
+		dataType : "json",		// json 타입은 문서에서 {"키값" : "vlaue값" , "키값" : "value값2"}
+		success : function(result) {	// 결과가 넘어와서 성공했을 때 받는 영역
+			alert("전송성공");							
+		},
+		error : function() {		// 결과가 실패했을 때 받는 영역
+			alert("전송실패");
+		}			
+	});		
+	
 }
 
 $(document).ready(function() {	// cdn주소 필요
+	
+	$.boardCommentList();
 	
 	$("#btn").click(function() {
 		// alert("추천버튼 클릭")
@@ -56,7 +58,51 @@ $(document).ready(function() {	// cdn주소 필요
 		});
 		
 	});
+	
+	$("#cmtbtn").click(function() {
+		
+		let loginCheck = "<%=session.getAttribute("midx")%>";
+		if (loginCheck == "" || loginCheck == "null" || loginCheck == null) {
+			alert("로그인을 해주세요.");
+			return;
+		}
+		
+		let cwriter = $("#cwriter").val();
+		let ccontents = $("#ccontents").val();
+		
+		if (cwriter == "") {
+			alert("작성자를 입력해주세요.");
+			$("#cwriter").focus();
+			return;
+			
+		} else if (ccontents == "") {
+			alert("내용을 입력해주세요.");
+			$("#ccontents").focus();
+			return;
+		}
+		
+		$.ajax({
+			type : "post",	// 전송방식
+			url : "<%=request.getContextPath()%>/comment/commentWriteAction.aws",
+			data : {"cwriter" : cwriter, 
+					"ccontents" : ccontents, 
+					"bidx" : "<%=bv.getBidx()%>", 
+					"midx" : "<%=session.getAttribute("midx")%>"
+					},
+			dataType : "json",		// json 타입은 문서에서 {"키값" : "vlaue값" , "키값" : "value값2"}
+			success : function(result) {	// 결과가 넘어와서 성공했을 때 받는 영역
+				// alert("전송성공");				
+				var str = "("+result.value+")";
+		 		alert(str);
+			},
+			error : function() {		// 결과가 실패했을 때 받는 영역
+				alert("전송실패");
+			}			
+		});		
+	});	
 });
+
+
 </script>
 </head>
 <body>
@@ -97,10 +143,12 @@ $(document).ready(function() {	// cdn주소 필요
 
 	<article class="commentContents">
 		<form name="frm">
-			<p class="commentWriter">admin</p>
-			<input type="text" name="content">
-			<button type="button" class="replyBtn" onclick="check();">댓글쓰기</button>
-		</form>
+		<p class="commentWriter" style="width:100px;">
+		<input type="text" id="cwriter" name="cwriter" value="<%=memberName%>" readonly="readonly" style="width:100px;border:0px;">
+		</p>	
+		<input type="text" id="ccontents" name="ccontents">
+		<button type="button" id="cmtbtn" class="replyBtn">댓글쓰기</button>
+	</form>
 
 
 		<table class="replyTable">

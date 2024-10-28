@@ -54,6 +54,6 @@ table th, table td { padding: 5px 10px; }
 
 .commentContents form[name="frm"] { margin-bottom: 40px; }
 .commentContents .commentWriter { border: 1px solid lightgray; display: inline-block; padding: 0 100px; }
-.commentContents input { width: 600px; height: 25px; float: left; }
+.commentContents { width: 600px; height: 25px; float: left; }
 .commentContents .replyBtn { background: #555; width: 188px; float: left; border: none; cursor: pointer;
 	color: white; height: 27px; }

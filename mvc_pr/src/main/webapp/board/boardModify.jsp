@@ -1,5 +1,6 @@
 <%@page import="mvc.vo.BoardVo"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@include file="/common/loginCheck.jsp" %>
 <%BoardVo bv = (BoardVo)request.getAttribute("bv"); // 강제형변환 양쪽형을 맞춰준다
 %>	
 <!DOCTYPE html>
