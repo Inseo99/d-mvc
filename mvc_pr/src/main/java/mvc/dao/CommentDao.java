@@ -45,6 +45,8 @@ public class CommentDao {
 			 String ccontents = rs.getString("ccontents"); 
 			 String cwriter = rs.getString("cwriter"); 
 			 String writeday = rs.getString("writeday");
+			 String delyn = rs.getString("delyn");
+			 int midx = rs.getInt("midx");
 				  
 			 CommentVo cv = new CommentVo();
 				  
@@ -52,6 +54,8 @@ public class CommentDao {
 			 cv.setCcontents(ccontents);
 			 cv.setCwriter(cwriter);
 			 cv.setWriteday(writeday);
+			 cv.setDelyn(delyn);
+			 cv.setMidx(midx);
 				  				  
 			 alist.add(cv); // ArrayList객체에 하나씩 추가한다. 
 			}
@@ -109,16 +113,15 @@ public class CommentDao {
 			return value;
 	}
 	
-	public int commentDelete(int bidx, String password) {
+	public int commentDelete(int cidx) {
 
 		
 		int value = 0;
-		String sql = "UPDATE board SET delyn = 'Y' WHERE bidx = ? AND password = ?";
+		String sql = "UPDATE comment SET delyn = 'Y' WHERE cidx = ?";
 		
 		try {
 			pstmt = conn.prepareStatement(sql);
-			pstmt.setInt(1, bidx);
-			pstmt.setString(2, password);
+			pstmt.setInt(1, cidx);
 			
 			value = pstmt.executeUpdate();
 			

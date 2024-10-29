@@ -53,7 +53,7 @@ table th, table td { padding: 5px 10px; }
 .detailContents .fileDown img { margin-right: 10px; }
 
 .commentContents form[name="frm"] { margin-bottom: 40px; }
-.commentContents .commentWriter { border: 1px solid lightgray; display: inline-block; padding: 0 100px; }
-.commentContents { width: 600px; height: 25px; float: left; }
-.commentContents .replyBtn { background: #555; width: 188px; float: left; border: none; cursor: pointer;
+.commentContents .commentWriter { border: 1px solid lightgray; display: block; padding: 0 30px; }
+.commentContents { width: 100%; height: 25px; float: left; }
+.commentContents .replyBtn { background: #555; width: 188px; float: right; border: none; cursor: pointer;
 	color: white; height: 27px; }

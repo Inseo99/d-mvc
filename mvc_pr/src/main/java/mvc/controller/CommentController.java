@@ -44,7 +44,7 @@ public class CommentController extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		
 		if (location.equals("commentList.aws")) {	// 가상 경로
-			System.out.println("commentList.aws");
+			// System.out.println("commentList.aws");
 			
 			String bidx = request.getParameter("bidx");
 			CommentDao cd = new CommentDao();
@@ -54,6 +54,8 @@ public class CommentController extends HttpServlet {
 			String cwriter = "";
 			String ccontents = "";
 			String writeday = "";
+			String delyn = "";
+			int midx = 0;
 			
 			String str = "";
 			for(int i = 0; i < alist.size(); i++) {
@@ -62,6 +64,8 @@ public class CommentController extends HttpServlet {
 				cwriter = alist.get(i).getCwriter();
 				ccontents = alist.get(i).getCcontents();
 				writeday = alist.get(i).getWriteday();
+				delyn = alist.get(i).getDelyn();
+				midx = alist.get(i).getMidx();
 				
 				String cma = "";
 				if (i == alist.size() - 1) {
@@ -70,12 +74,12 @@ public class CommentController extends HttpServlet {
 					cma = ",";
 				}
 				
-				str = str + "{ \"cidx\" : \""+cidx+"\", \"cwriter\" : \""+cwriter+"\", \"ccontents\" : \""+ccontents+"\", \"writeday\" : \""+writeday+"\" }" + cma;								
+				str = str + "{ \"cidx\" : \""+cidx+"\", \"cwriter\" : \""+cwriter+"\", \"ccontents\" : \""+ccontents+"\", \"writeday\" : \""+writeday+"\", \"delyn\" : \""+delyn+"\", \"midx\" : \""+ midx +"\" }" + cma;								
 			}
 				// {"a" : "1", "b" : "2", "c" : "3"},{"a" : "3", "b" : "4", "c" : "5"}
 			PrintWriter out = response.getWriter();
 			out.println("["+str+"]");
-			System.out.println(str);
+			// System.out.println(str);
 			
 			// System.out.println(alist);
 			 
@@ -115,27 +119,20 @@ public class CommentController extends HttpServlet {
 	        			
 		} else if (location.equals("commentDeleteAction.aws")) {
 			
-			String bidx = request.getParameter("bidx");
-			String password = request.getParameter("password");
-			// System.out.println(bidx + password);
+			String cidx = request.getParameter("cidx");
+			// System.out.println(cidx);
 			
-			// 처리하기
-			BoardDao bd = new BoardDao();
-			int value = bd.boardDelete(Integer.parseInt(bidx), password);
-			System.out.println(value);
+			// delyn Y로 업데이트 하는 메소드를 호출
+			CommentDao cd = new CommentDao();
+			int value = cd.commentDelete(Integer.parseInt(cidx));
 			
-			if (value == 1) {
-
-			} else {
-				response.setContentType("text/html; charset=UTF-8");  // 응답 콘텐츠 타입 설정
-	            PrintWriter out = response.getWriter();  // PrintWriter 객체 가져오기
-	            
-	            out.println("<script>");
-	            out.println("alert('비밀번호가 다릅니다.');");
-	            out.println("location.href='" + request.getContextPath() + "/board/boardDelete.aws?bidx=" + bidx + "';");
-	            out.println("</script>");
-	            out.flush();
-			}			
+			
+			// 그리고 나서 화면에 실행성공여부를 json파일로 보여줌
+			PrintWriter out = response.getWriter();
+			
+			String str = "{ \"value\" : \""+value+"\" }";
+			out.print(str);
+			
 		}		
 	}
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {

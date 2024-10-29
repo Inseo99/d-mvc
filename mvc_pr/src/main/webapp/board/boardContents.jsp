@@ -5,8 +5,12 @@
 BoardVo bv = (BoardVo)request.getAttribute("bv"); // 강제형변환 양쪽형을 맞춰준다
 
 String memberName = "";
+int midx = 0;
 if(session.getAttribute("memberName") != null) {
 	memberName = (String)session.getAttribute("memberName");
+}
+if(session.getAttribute("midx") != null) {
+	midx = (int)session.getAttribute("midx");
 }
 %>
 <!DOCTYPE html>
@@ -18,6 +22,30 @@ if(session.getAttribute("memberName") != null) {
 <!-- jquery CDN주소 -->
 <link href="../css/style2.css" rel="stylesheet">
 <script> 
+function commentDel(cidx) {
+	
+	let ans = confirm("삭제하시겠습니까?");
+	
+	if (ans == true) {
+		
+		$.ajax({
+			type : "get",	// 전송방식
+			url : "<%=request.getContextPath()%>/comment/commentDeleteAction.aws?cidx=" + cidx,
+			dataType : "json",		// json 타입은 문서에서 {"키값" : "vlaue값" , "키값" : "value값2"}
+			success : function(result) {	// 결과가 넘어와서 성공했을 때 받는 영역
+				// alert("전송성공");				
+				// alert(result.value);
+				$.boardCommentList();
+			},
+			error : function() {		// 결과가 실패했을 때 받는 영역
+				alert("전송실패");
+			}			
+		});
+	}
+	
+	return;
+}
+
 //jquery로 만드는 함수
 $.boardCommentList = function(){
 	
@@ -26,10 +54,43 @@ $.boardCommentList = function(){
 		url : "<%=request.getContextPath()%>/comment/commentList.aws?bidx=<%=bv.getBidx()%>",
 		dataType : "json",		// json 타입은 문서에서 {"키값" : "vlaue값" , "키값" : "value값2"}
 		success : function(result) {	// 결과가 넘어와서 성공했을 때 받는 영역
-			alert("전송성공");							
+			// alert("전송성공");	
+		var strTr = "";
+		
+		$(result).each(function(){
+			
+			var btnn = "";
+			if (this.midx == "<%=midx%>"){	// 현재로그인 사람과 댓글쓴 사람의 번호가 같을때만 나타남				
+				if (this.delyn == 'N') {
+					btnn = "<button class = 'btn' type = 'button' onclick = 'commentDel(" + this.cidx + ")'>삭제</button>";
+					
+				}				
+			}
+			
+			strTr = strTr + "<tr>"
+			+ "<td>" + this.cidx + "</td>"
+			+ "<td>" + this.cwriter + "</td>"
+			+ "<td class='content'>" + this.ccontents + "</td>"
+			+ "<td>" + this.writeday + "</td>"
+			+ "<td>" + btnn + "</td>"
+			+ "</tr>"
+			
+		});
+		
+		var str = "<table class='replyTable'>"
+		+ "<tr>" 
+		+ "<th>번호</th>"
+		+ "<th>작성자</th>"
+		+ "<th>내용</th>"
+		+ "<th>날짜</th>"
+		+ "<th>DEL</th>"
+		+ "</tr>" + strTr + "</table>"
+		
+		$("#commentListView").html(str);
+		
 		},
 		error : function() {		// 결과가 실패했을 때 받는 영역
-			alert("전송실패");
+			// alert("전송실패");
 		}			
 	});		
 	
@@ -61,7 +122,7 @@ $(document).ready(function() {	// cdn주소 필요
 	
 	$("#cmtbtn").click(function() {
 		
-		let loginCheck = "<%=session.getAttribute("midx")%>";
+		let loginCheck = "<%=midx%>";
 		if (loginCheck == "" || loginCheck == "null" || loginCheck == null) {
 			alert("로그인을 해주세요.");
 			return;
@@ -87,13 +148,18 @@ $(document).ready(function() {	// cdn주소 필요
 			data : {"cwriter" : cwriter, 
 					"ccontents" : ccontents, 
 					"bidx" : "<%=bv.getBidx()%>", 
-					"midx" : "<%=session.getAttribute("midx")%>"
+					"midx" : "<%=midx%>"
 					},
 			dataType : "json",		// json 타입은 문서에서 {"키값" : "vlaue값" , "키값" : "value값2"}
 			success : function(result) {	// 결과가 넘어와서 성공했을 때 받는 영역
 				// alert("전송성공");				
-				var str = "("+result.value+")";
-		 		alert(str);
+				// var str = "("+result.value+")";
+		 		alert("댓글이 등록되었습니다.");
+		 		if(result.value == 1) {
+		 			$("#contents").val("");
+		 		}
+		 		
+		 		$.boardCommentList();
 			},
 			error : function() {		// 결과가 실패했을 때 받는 영역
 				alert("전송실패");
@@ -144,30 +210,13 @@ $(document).ready(function() {	// cdn주소 필요
 	<article class="commentContents">
 		<form name="frm">
 		<p class="commentWriter" style="width:100px;">
-		<input type="text" id="cwriter" name="cwriter" value="<%=memberName%>" readonly="readonly" style="width:100px;border:0px;">
+		<input type="text" id="cwriter" name="cwriter" value="<%=memberName%>" readonly="readonly" style="width:100%;border:0px;">
 		</p>	
-		<input type="text" id="ccontents" name="ccontents">
+		<input type="text" id="ccontents" name="ccontents"style="width:75%;">		
 		<button type="button" id="cmtbtn" class="replyBtn">댓글쓰기</button>
-	</form>
-
-
-		<table class="replyTable">
-			<tr>
-				<th>번호</th>
-				<th>작성자</th>
-				<th>내용</th>
-				<th>날짜</th>
-				<th>DEL</th>
-			</tr>
-			<tr>
-				<td>1</td>
-				<td>홍길동</td>
-				<td class="content">댓글입니다</td>
-				<td>2024-10-18</td>
-				<td>sss</td>
-			</tr>
-		</table>
+	</form>	
+		
+		<div id = "commentListView"></div>
 	</article>
-
 </body>
 </html>
